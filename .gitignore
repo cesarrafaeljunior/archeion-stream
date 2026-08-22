@@ -1,0 +1,17 @@
+# Jellyfin runtime
+config/
+cache/
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
