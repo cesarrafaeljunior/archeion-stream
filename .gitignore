@@ -4,6 +4,15 @@ cache/
 
 # Environment
 .env
+# Medias
+media/*
+!media/filmes/
+!media/series/
+!media/videos/
+!media/filmes/.gitkeep
+!media/series/.gitkeep
+!media/videos/.gitkeep
+
 
 # Logs
 *.log
