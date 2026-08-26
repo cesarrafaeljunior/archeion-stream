@@ -1,5 +1,4 @@
 services:
-
   jellyfin:
     image: jellyfin/jellyfin:10.11.11
     container_name: crflix-jellyfin
@@ -11,8 +10,8 @@ services:
       - "7359:7359/udp"
 
     volumes:
-      - ./config:/config
-      - ./cache:/cache
-      - ./media:/media:ro
+      - ../../config:/config
+      - ../../cache:/cache
+      - ../../media:/media:ro
 
     restart: unless-stopped
