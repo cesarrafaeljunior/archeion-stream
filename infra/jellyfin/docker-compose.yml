@@ -13,5 +13,8 @@ services:
       - ../../config:/config
       - ../../cache:/cache
       - ../../media:/media:ro
+      # Use um ponto de montagem estavel. O operador `:?` impede que o Docker
+      # suba silenciosamente com uma biblioteca vazia quando a variavel faltar.
+      - ${MEDIA_ROOT:?Defina MEDIA_ROOT no arquivo .env}:/media-hd:ro
 
     restart: unless-stopped
