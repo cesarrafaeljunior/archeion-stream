@@ -14,7 +14,7 @@ if [[ -z "${MEDIA_ROOT:-}" || -z "${MEDIA_UUID:-}" || "$mounted_uuid" != "$MEDIA
 fi
 
 if [[ ! -d "$MEDIA_ROOT/series" || ! -d "$MEDIA_ROOT/filmes" ]]; then
-  echo "ERRO: o HD montado nao contem as pastas crflix/series e crflix/filmes." >&2
+  echo "ERRO: o HD montado nao contem as pastas series e filmes do Archeion Stream." >&2
   exit 1
 fi
 

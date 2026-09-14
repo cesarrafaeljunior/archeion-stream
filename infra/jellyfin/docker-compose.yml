@@ -1,7 +1,9 @@
+name: archeion-stream
+
 services:
   jellyfin:
     image: jellyfin/jellyfin:10.11.11
-    container_name: crflix-jellyfin
+    container_name: archeion-stream-jellyfin
 
     user: "${PUID}:${PGID}"
 
@@ -16,5 +18,5 @@ services:
       # Use um ponto de montagem estavel. O operador `:?` impede que o Docker
       # suba silenciosamente com uma biblioteca vazia quando a variavel faltar.
       - ${MEDIA_ROOT:?Defina MEDIA_ROOT no arquivo .env}:/media-hd:ro
-
+      - /mnt/google-drive:/media-drive:ro
     restart: unless-stopped

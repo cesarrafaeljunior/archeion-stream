@@ -1,4 +1,4 @@
-# crflix
+# Archeion Stream
 
 Servidor Jellyfin executado por Docker Compose, com a configuracao no projeto e
 a midia armazenada localmente ou em um HD externo.
@@ -15,7 +15,7 @@ As bibliotecas do Jellyfin usam `/media/series` e `/media-hd/series` para series
 `/media-hd/filmes` para filmes. Nunca cadastre cada titulo como uma biblioteca
 separada.
 
-Use um ponto de montagem estavel para o HD, preferencialmente `/mnt/crflix`,
+Use um ponto de montagem estavel para o HD, preferencialmente `/mnt/archeion-stream-media`,
 montado pelo UUID do volume. Caminhos automaticos como `/media/usuario/Ventoy1`
 podem mudar a cada reconexao. O compose exige `MEDIA_ROOT`; assim ele nao inicia
 por engano sobre um diretorio vazio quando a configuracao estiver ausente.
@@ -23,7 +23,7 @@ por engano sobre um diretorio vazio quando a configuracao estiver ausente.
 Estrutura esperada no HD:
 
 ```text
-crflix/
+archeion-stream/
 ├── animes/
 │   └── Nome do Anime (2019)/
 │       ├── Season 01/
