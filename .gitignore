@@ -4,6 +4,16 @@ cache/
 
 # Environment
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
 # Medias
 media/*
 !media/filmes/

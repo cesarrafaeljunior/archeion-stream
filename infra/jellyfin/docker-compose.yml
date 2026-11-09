@@ -2,21 +2,28 @@ name: archeion-stream
 
 services:
   jellyfin:
-    image: jellyfin/jellyfin:10.11.11
+    image: jellyfin/jellyfin:12.4
     container_name: archeion-stream-jellyfin
+    init: true
 
-    user: "${PUID}:${PGID}"
+    user: "${PUID:?Defina PUID no arquivo .env}:${PGID:?Defina PGID no arquivo .env}"
+
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
     ports:
-      - "8096:8096/tcp"
-      - "7359:7359/udp"
+      # Seguro por padrao: exponha na interface Tailscale/LAN apenas de forma explicita.
+      - "${JELLYFIN_BIND_ADDRESS:-127.0.0.1}:8096:8096/tcp"
+      - "${JELLYFIN_DISCOVERY_BIND_ADDRESS:-127.0.0.1}:7359:7359/udp"
 
     volumes:
       - ../../config:/config
       - ../../cache:/cache
       - ../../media:/media:ro
-      # Use um ponto de montagem estavel. O operador `:?` impede que o Docker
+      # Use um ponto de montagem estavel. O operador :? impede que o Docker
       # suba silenciosamente com uma biblioteca vazia quando a variavel faltar.
       - ${MEDIA_ROOT:?Defina MEDIA_ROOT no arquivo .env}:/media-hd:ro
-      - /mnt/google-drive:/media-drive:ro
+      - ${MEDIA_DRIVE_ROOT:?Defina MEDIA_DRIVE_ROOT no arquivo .env}:/media-drive:ro
     restart: unless-stopped

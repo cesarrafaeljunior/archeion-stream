@@ -2,10 +2,9 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-set -a
 # shellcheck disable=SC1091
-source "$script_dir/.env"
-set +a
+source "$script_dir/load-env.sh"
+load_jellyfin_env "$script_dir/.env"
 
 if [[ -z "${MEDIA_ROOT:-}" ]]; then
   echo "ERRO: MEDIA_ROOT nao esta definido." >&2
@@ -20,12 +19,12 @@ if [[ -z "${MEDIA_UUID:-}" || "$mounted_uuid" != "$MEDIA_UUID" || -z "$source_de
 fi
 
 parent_name="$(lsblk -n -o PKNAME "$source_device" | head -n 1)"
-if [[ -z "$parent_name" ]]; then
+if [[ -z "$parent_name" || ! "$parent_name" =~ ^[a-zA-Z0-9._-]+$ || ! -b "/dev/$parent_name" ]]; then
   echo "ERRO: nao foi possivel identificar o disco de $source_device." >&2
   exit 1
 fi
 
-docker compose -f "$script_dir/docker-compose.yml" stop jellyfin
+docker compose --env-file "$script_dir/.env" -f "$script_dir/docker-compose.yml" stop jellyfin
 sync
 udisksctl unmount -b "$source_device"
 udisksctl power-off -b "/dev/$parent_name"

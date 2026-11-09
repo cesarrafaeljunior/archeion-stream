@@ -127,52 +127,47 @@ git clone https://github.com/cesarrafaeljunior/archeion-stream.git
 cd archeion-stream
 ```
 
-> **Importante:** o conteúdo e os arquivos de implantação deste repositório não puderam ser inspecionados durante a elaboração deste README. Os passos a seguir são um **modelo de referência**, e não uma garantia de que os caminhos e nomes de arquivos atuais correspondam à estrutura do repositório.
-
 ### 2. Configurar os volumes e o ambiente
 
-Separe os dados persistentes da configuração versionada:
-
-```text
-/config  → configuração e banco de dados do Jellyfin
-/cache   → cache e artefatos temporários
-/media   → arquivos de mídia montados no contêiner
-```
-
-Se o repositório já contiver um arquivo `compose.yaml` (ou `docker-compose.yml`), revise os volumes, portas, usuário do contêiner e permissões antes de executá-lo. **Não publique pastas de mídia, banco de dados, configuração real, tokens ou credenciais.**
-
-Exemplo **ilustrativo** de serviço Docker Compose — adapte-o ao ambiente e não o considere uma transcrição do deploy existente:
-
-```yaml
-services:
-  jellyfin:
-    image: jellyfin/jellyfin:stable
-    container_name: archeion-stream
-    ports:
-      - "8096:8096/tcp"
-    volumes:
-      - ./data/config:/config
-      - ./data/cache:/cache
-      - /caminho/no/host/para/midias:/media:ro
-    restart: unless-stopped
-```
-
-**Antes de usar o exemplo:** substitua `/caminho/no/host/para/midias` pelo diretório real do acervo; valide permissões e os requisitos específicos do seu sistema. Esse exemplo expõe apenas a interface web na porta configurada e não cobre todas as possibilidades de descoberta de dispositivos, hardware transcoding ou acesso externo.
-
-### 3. Iniciar o servidor
-
-Se houver um Compose válido no diretório atual:
+A implantação versionada está em `infra/jellyfin`. Configurações reais, cache, banco de dados e mídias permanecem fora do Git.
 
 ```bash
-docker compose up -d
-docker compose ps
+cd infra/jellyfin
+cp .env.example .env
+chmod 600 .env
+id -u
+id -g
 ```
 
-Em seguida, acesse a interface web no endereço do seu host na rede local, pela porta configurada — no exemplo acima, `http://IP_DO_SERVIDOR:8096` — e conclua a configuração inicial do Jellyfin.
+Edite o `.env` e informe:
 
-### 4. Acesso remoto privado (opcional)
+- `PUID` e `PGID` do usuário que executará o contêiner;
+- `MEDIA_ROOT`, `MEDIA_UUID` e `MEDIA_DRIVE_ROOT` conforme as montagens reais;
+- `JELLYFIN_BIND_ADDRESS` com o IP Tailscale do servidor (`100.x.y.z`) para acesso remoto privado, ou mantenha `127.0.0.1` para acesso somente no host;
+- `JELLYFIN_DISCOVERY_BIND_ADDRESS` somente quando a descoberta UDP na LAN for necessária.
 
-É possível conectar o servidor e os dispositivos autorizados a uma mesma rede Tailscale. Nesse cenário, o acesso usa o endereço atribuído pela rede privada, sem exigir a publicação aberta da porta do servidor na internet.
+O Compose monta as bibliotecas como somente leitura. `config/`, `cache/`, arquivos `.env` reais, bancos e mídias são ignorados pelo Git.
+
+### 3. Atualizar com segurança
+
+A imagem está fixada no Jellyfin `12.4`, versão estável utilizada por esta configuração. Antes de atualizar uma instalação existente, faça backup completo de `config/` e consulte as notas de migração do Jellyfin.
+
+A migração da série `10.11.x` para `12.x` exige partir do Jellyfin `10.11.11` ou superior. A primeira inicialização pode executar migrações e demorar alguns minutos; não interrompa o processo.
+
+### 4. Iniciar o servidor
+
+Use o script de inicialização para validar o UUID do disco, a estrutura das bibliotecas e as variáveis obrigatórias antes de criar o contêiner:
+
+```bash
+./start.sh
+docker compose --env-file .env -f docker-compose.yml ps
+```
+
+Por padrão, as portas TCP 8096 e UDP 7359 ficam vinculadas a `127.0.0.1`, evitando exposição acidental em todas as interfaces.
+
+### 5. Acesso remoto privado
+
+Conecte o servidor e os dispositivos autorizados à mesma rede Tailscale e configure `JELLYFIN_BIND_ADDRESS` com o IP Tailscale do host. Assim, o acesso direto usa `http://IP_TAILSCALE:8096` sem publicar a porta na internet.
 
 > Não compartilhe endereços de rede, chaves de autenticação nem configurações específicas da sua instalação em um repositório público.
 
@@ -202,6 +197,8 @@ midia/
 - Utilize contas individuais e senhas fortes para acesso ao servidor.
 - Prefira acesso remoto privado, via Tailscale ou solução equivalente, quando não houver necessidade de exposição pública.
 - Nunca versione tokens, chaves, arquivos `.env` reais, bancos de dados, logs privados, caches ou bibliotecas de mídia.
+- Mantenha o Jellyfin na versão estável suportada e revise os avisos oficiais de segurança antes de cada atualização.
+- Preserve o vínculo das portas ao IP Tailscale ou ao loopback; não use `0.0.0.0` sem firewall e uma decisão consciente de exposição.
 - Antes de publicar screenshots, remova endereços internos, nomes de usuário e identificadores pessoais que não deseja divulgar.
 - Capas, títulos e imagens exibidos na interface pertencem aos seus respectivos titulares; não são distribuídos como arquivos deste projeto.
 - Utilize apenas mídias às quais você tenha direito de acesso e de utilização.
@@ -216,6 +213,8 @@ Possíveis melhorias futuras deverão ser documentadas quando forem efetivamente
 
 - [Jellyfin — site oficial](https://jellyfin.org/)
 - [Jellyfin — documentação](https://jellyfin.org/docs/)
+- [Jellyfin — política e avisos de segurança](https://github.com/jellyfin/jellyfin/security)
+- [Jellyfin 12.4 — release oficial](https://github.com/jellyfin/jellyfin/releases/tag/v12.4)
 - [Tailscale — documentação](https://tailscale.com/kb/)
 
 ## Autor
